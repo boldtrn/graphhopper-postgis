@@ -56,7 +56,7 @@ public class OSMPostgisReader extends PostgisReader {
     private static final int COORD_STATE_UNKNOWN = 0;
     private static final int COORD_STATE_PILLAR = -2;
     private static final int FIRST_NODE_ID = 1;
-    private static final String[] DIRECT_COPY_TAGS = new String[]{"name"};
+    private final String[] tagsToCopy;
     private File roadsFile;
     private final GHObjectIntHashMap<Coordinate> coordState = new GHObjectIntHashMap<>(1000, 0.7f);
     private final DistanceCalc distCalc = DIST_EARTH;
@@ -64,11 +64,14 @@ public class OSMPostgisReader extends PostgisReader {
     private final HashSet<EdgeAddedListener> edgeAddedListeners = new HashSet<>();
     private int nextNodeId = FIRST_NODE_ID;
 
-    //private final String encoding = "utf8";
-
-    public OSMPostgisReader(GraphHopperStorage ghStorage,
-                            Map<String, String> postgisParams) {
+    public OSMPostgisReader(GraphHopperStorage ghStorage, Map<String, String> postgisParams) {
         super(ghStorage, postgisParams);
+        String tmpTagsToCopy = postgisParams.get("tagsToCopy");
+        if (tmpTagsToCopy == null || tmpTagsToCopy.isEmpty()) {
+            this.tagsToCopy = new String[]{};
+        } else {
+            this.tagsToCopy = tmpTagsToCopy.split(",");
+        }
     }
 
     private List<Coordinate[]> getCoords(Object o) {
@@ -297,10 +300,10 @@ public class OSMPostgisReader extends PostgisReader {
             way.setTag("maxspeed", maxSpeed.toString());
         }
 
-        for (String tag : DIRECT_COPY_TAGS) {
+        for (String tag : tagsToCopy) {
             Object val = road.getAttribute(tag);
             if (val != null) {
-                way.setTag(tag, val.toString());
+                way.setTag(tag, val);
             }
         }
 
@@ -360,11 +363,11 @@ public class OSMPostgisReader extends PostgisReader {
         return id;
     }
 
-    private Coordinate roundCoordinate(Coordinate c){
+    private Coordinate roundCoordinate(Coordinate c) {
         c.x = Helper.round6(c.x);
         c.y = Helper.round6(c.y);
 
-        if(!Double.isNaN(c.z))
+        if (!Double.isNaN(c.z))
             c.z = Helper.round6(c.z);
 
         return c;

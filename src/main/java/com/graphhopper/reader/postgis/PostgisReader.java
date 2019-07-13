@@ -81,8 +81,6 @@ public abstract class PostgisReader implements DataReader {
             throw new IllegalArgumentException("DataStore cannot be null for getFeatureIterator");
 
         try {
-            //String typeName = dataStore.getTypeNames()[0];
-
             FeatureSource<SimpleFeatureType, SimpleFeature> source =
                     dataStore.getFeatureSource(tableName);
             Filter filter = Filter.INCLUDE;

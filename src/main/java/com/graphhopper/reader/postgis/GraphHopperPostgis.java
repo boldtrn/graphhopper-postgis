@@ -48,6 +48,7 @@ public class GraphHopperPostgis extends GraphHopperOSM {
         postgisParams.put("database", args.get("db.database", ""));
         postgisParams.put("user", args.get("db.user", ""));
         postgisParams.put("passwd", args.get("db.passwd", ""));
+        postgisParams.put("tagsToCopy", args.get("db.tagsToCopy", ""));
 
         return super.init(args);
     }

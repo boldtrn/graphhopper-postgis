@@ -20,6 +20,7 @@ package com.graphhopper.reader.postgis;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.Helper;
+import com.graphhopper.util.StopWatch;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +40,7 @@ public class OSMPostgisReaderTest {
     private final String dir = "./target/tmp/test-db";
 
     // Note: Change the number of expected edges to your database
-    private final int NR_EXPECTED_EDGES = 1000000;
+    private final int NR_EXPECTED_EDGES = 16000;
 
     @Before
     public void setUp() {
@@ -58,6 +59,7 @@ public class OSMPostgisReaderTest {
             throw new IllegalStateException("You need to define the environment variables before running the test");
 
 
+        StopWatch stopWatch = new StopWatch().start();
         GraphHopper graphHopper = new GraphHopperPostgis().forServer();
 
         CmdArgs args = new CmdArgs();
@@ -67,6 +69,7 @@ public class OSMPostgisReaderTest {
         args.put("db.schema", System. getenv("GH_DB_SCHEMA"));
         args.put("db.user", System. getenv("GH_DB_USER"));
         args.put("db.passwd", System. getenv("GH_DB_PASSWD"));
+        args.put("db.tagsToCopy", "name");
 
         //TODO this should be fixed at some point, probably it would be nicer to have this in the args as well
         args.put("datareader.file", System. getenv("GH_DB_TABLE"));
@@ -77,6 +80,8 @@ public class OSMPostgisReaderTest {
         graphHopper.importOrLoad();
 
         assertTrue("Not enough edges created", graphHopper.getGraphHopperStorage().getAllEdges().length()>NR_EXPECTED_EDGES);
+        stopWatch.stop();
+        System.out.println("Importing the database took: "+stopWatch.getSeconds());
     }
 
 }
