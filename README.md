@@ -4,7 +4,7 @@ This repository is based on the work by [mbasa](https://github.com/mbasa/graphho
 
 Please note, this is a module for GraphHopper, you will need to combine it with [GraphHopper](https://github.com/graphhopper/graphhopper).
 
-To get an idea of how to use it, have a look at the OSMPostgisReaderTest.
+To get an idea of how to use it, have a look at the [OSMPostgisReaderTest](https://github.com/boldtrn/graphhopper-postgis/blob/master/src/main/test/java/com/graphhopper/reader/postgis/OSMPostgisReaderTest.java).
 
 ## Setup Postgres 
 
