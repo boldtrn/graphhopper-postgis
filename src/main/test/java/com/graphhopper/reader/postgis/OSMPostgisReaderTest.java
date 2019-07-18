@@ -69,7 +69,7 @@ public class OSMPostgisReaderTest {
         args.put("db.schema", System. getenv("GH_DB_SCHEMA"));
         args.put("db.user", System. getenv("GH_DB_USER"));
         args.put("db.passwd", System. getenv("GH_DB_PASSWD"));
-        args.put("db.tagsToCopy", "name");
+        args.put("db.tags_to_copy", "name");
 
         //TODO this should be fixed at some point, probably it would be nicer to have this in the args as well
         args.put("datareader.file", System. getenv("GH_DB_TABLE"));

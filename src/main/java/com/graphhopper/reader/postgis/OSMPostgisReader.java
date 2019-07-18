@@ -66,7 +66,7 @@ public class OSMPostgisReader extends PostgisReader {
 
     public OSMPostgisReader(GraphHopperStorage ghStorage, Map<String, String> postgisParams) {
         super(ghStorage, postgisParams);
-        String tmpTagsToCopy = postgisParams.get("tagsToCopy");
+        String tmpTagsToCopy = postgisParams.get("tags_to_copy");
         if (tmpTagsToCopy == null || tmpTagsToCopy.isEmpty()) {
             this.tagsToCopy = new String[]{};
         } else {
