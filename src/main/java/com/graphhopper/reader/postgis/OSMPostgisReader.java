@@ -184,8 +184,7 @@ public class OSMPostgisReader extends PostgisReader {
                                 int fromTowerNodeId = coordState.get(startTowerPnt);
                                 int toTowerNodeId = state;
 
-                                // get distance and estimated centres
-                                double distance = getWayLength(startTowerPnt, pillars, point);
+                                // get distance and estimated centre
                                 GHPoint estmCentre = new GHPoint(
                                         0.5 * (lat(startTowerPnt) + lat(point)),
                                         0.5 * (lng(startTowerPnt) + lng(point)));
@@ -195,6 +194,7 @@ public class OSMPostgisReader extends PostgisReader {
                                     pillarNodes.add(lat(pillar), lng(pillar));
                                 }
 
+                                double distance = getWayLength(startTowerPnt, pillars, point);
                                 addEdge(fromTowerNodeId, toTowerNodeId, road, distance, estmCentre,
                                         pillarNodes);
                                 startTowerPnt = point;
@@ -218,7 +218,7 @@ public class OSMPostgisReader extends PostgisReader {
         }
     }
 
-    private double getWayLength(Coordinate start, List<Coordinate> pillars, Coordinate end) {
+    protected double getWayLength(Coordinate start, List<Coordinate> pillars, Coordinate end) {
         double distance = 0;
 
         Coordinate previous = start;
