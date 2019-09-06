@@ -24,6 +24,8 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.storage.NodeAccess;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiLineString;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.FeatureSource;
@@ -35,6 +37,8 @@ import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -111,6 +115,39 @@ public abstract class PostgisReader implements DataReader {
         } catch (Exception e) {
             throw Utils.asUnchecked(e);
         }
+    }
+
+    /**
+     * This method can be used to filter features. One way to use it is to filter for features withing a certain BBox
+     *
+     * @return true if the feature should be accepted
+     */
+    protected boolean acceptFeature(SimpleFeature feature) {
+        return true;
+    }
+
+    /**
+     * Returns the coordinates of a feature.
+     */
+    protected List<Coordinate[]> getCoords(SimpleFeature feature) {
+        ArrayList<Coordinate[]> ret = new ArrayList<>();
+        if (feature == null)
+            return ret;
+        Object coords = feature.getDefaultGeometry();
+        if (coords == null)
+            return ret;
+
+        if (coords instanceof LineString) {
+            ret.add(((LineString) coords).getCoordinates());
+        } else if (coords instanceof MultiLineString) {
+            MultiLineString mls = (MultiLineString) coords;
+            int n = mls.getNumGeometries();
+            for (int i = 0; i < n; i++) {
+                ret.add(mls.getGeometryN(i).getCoordinates());
+            }
+        }
+
+        return ret;
     }
 
     /*

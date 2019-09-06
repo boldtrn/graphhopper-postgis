@@ -30,8 +30,6 @@ import com.graphhopper.util.Helper;
 import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.GHPoint;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.MultiLineString;
 import org.geotools.data.DataStore;
 import org.geotools.feature.FeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
@@ -75,25 +73,6 @@ public class OSMPostgisReader extends PostgisReader {
         }
     }
 
-    private List<Coordinate[]> getCoords(Object o) {
-        ArrayList<Coordinate[]> ret = new ArrayList<>();
-        if (o == null) {
-            return ret;
-        }
-
-        if (o instanceof LineString) {
-            ret.add(((LineString) o).getCoordinates());
-        } else if (o instanceof MultiLineString) {
-            MultiLineString mls = (MultiLineString) o;
-            int n = mls.getNumGeometries();
-            for (int i = 0; i < n; i++) {
-                ret.add(mls.getGeometryN(i).getCoordinates());
-            }
-        }
-
-        return ret;
-    }
-
     @Override
     void processJunctions() {
         DataStore dataStore = null;
@@ -108,7 +87,11 @@ public class OSMPostgisReader extends PostgisReader {
             while (roads.hasNext()) {
                 SimpleFeature road = roads.next();
 
-                for (Coordinate[] points : getCoords(road.getDefaultGeometry())) {
+                if (!acceptFeature(road)) {
+                    continue;
+                }
+
+                for (Coordinate[] points : getCoords(road)) {
                     tmpSet.clear();
                     for (int i = 0; i < points.length; i++) {
                         Coordinate c = points[i];
@@ -176,9 +159,13 @@ public class OSMPostgisReader extends PostgisReader {
             while (roads.hasNext()) {
                 SimpleFeature road = roads.next();
 
-                for (Coordinate[] points : getCoords(road.getDefaultGeometry())) {
+                if (!acceptFeature(road)) {
+                    continue;
+                }
+
+                for (Coordinate[] points : getCoords(road)) {
                     // Parse all points in the geometry, splitting into
-                    // individual graphhopper edges
+                    // individual GraphHopper edges
                     // whenever we find a node in the list of points
                     Coordinate startTowerPnt = null;
                     List<Coordinate> pillars = new ArrayList<Coordinate>();
