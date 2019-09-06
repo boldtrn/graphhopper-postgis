@@ -41,8 +41,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.*;
 
-import static com.graphhopper.util.Helper.DIST_EARTH;
-import static com.graphhopper.util.Helper.toLowerCase;
+import static com.graphhopper.util.Helper.*;
 
 /**
  * Reads OSM data from Postgis and uses it in GraphHopper
@@ -53,6 +52,9 @@ import static com.graphhopper.util.Helper.toLowerCase;
  * @author Robin Boldt
  */
 public class OSMPostgisReader extends PostgisReader {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(OSMPostgisReader.class);
+
     private static final int COORD_STATE_UNKNOWN = 0;
     private static final int COORD_STATE_PILLAR = -2;
     private static final int FIRST_NODE_ID = 1;
@@ -60,7 +62,6 @@ public class OSMPostgisReader extends PostgisReader {
     private File roadsFile;
     private final GHObjectIntHashMap<Coordinate> coordState = new GHObjectIntHashMap<>(1000, 0.7f);
     private final DistanceCalc distCalc = DIST_EARTH;
-    private static final Logger LOGGER = LoggerFactory.getLogger(OSMPostgisReader.class);
     private final HashSet<EdgeAddedListener> edgeAddedListeners = new HashSet<>();
     private int nextNodeId = FIRST_NODE_ID;
 
@@ -97,6 +98,7 @@ public class OSMPostgisReader extends PostgisReader {
     void processJunctions() {
         DataStore dataStore = null;
         FeatureIterator<SimpleFeature> roads = null;
+        int tmpJunctionCounter = 0;
 
         try {
             dataStore = openPostGisStore();
@@ -136,9 +138,13 @@ public class OSMPostgisReader extends PostgisReader {
                             // to an edge later)
                             coordState.put(c, COORD_STATE_PILLAR);
                         }
+
+                        if (++tmpJunctionCounter % 100_000 == 0) {
+                            LOGGER.info(nf(tmpJunctionCounter) + " (junctions), junctionMap:" + nf(coordState.size())
+                                    + " " + Helper.getMemInfo());
+                        }
                     }
                 }
-
             }
         } finally {
             if (roads != null) {
@@ -160,6 +166,8 @@ public class OSMPostgisReader extends PostgisReader {
 
         DataStore dataStore = null;
         FeatureIterator<SimpleFeature> roads = null;
+
+        int tmpEdgeCounter = 0;
 
         try {
             dataStore = openPostGisStore();
@@ -199,6 +207,10 @@ public class OSMPostgisReader extends PostgisReader {
                                         pillarNodes);
                                 startTowerPnt = point;
                                 pillars.clear();
+
+                                if (++tmpEdgeCounter % 1_000_000 == 0) {
+                                    LOGGER.info(nf(tmpEdgeCounter) + " (edges) " + Helper.getMemInfo());
+                                }
                             } else {
                                 pillars.add(point);
                             }

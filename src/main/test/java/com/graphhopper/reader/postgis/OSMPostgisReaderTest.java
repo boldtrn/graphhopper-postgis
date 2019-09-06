@@ -55,7 +55,7 @@ public class OSMPostgisReaderTest {
     @Test
     public void testBasicGraphCreation() {
 
-        if(System. getenv("GH_DB_HOST") == null)
+        if (System.getenv("GH_DB_HOST") == null)
             throw new IllegalStateException("You need to define the environment variables before running the test");
 
 
@@ -63,25 +63,25 @@ public class OSMPostgisReaderTest {
         GraphHopper graphHopper = new GraphHopperPostgis().forServer();
 
         CmdArgs args = new CmdArgs();
-        args.put("db.host", System. getenv("GH_DB_HOST"));
-        args.put("db.port", System. getenv("GH_DB_PORT"));
-        args.put("db.database", System. getenv("GH_DB_DATABASE"));
-        args.put("db.schema", System. getenv("GH_DB_SCHEMA"));
-        args.put("db.user", System. getenv("GH_DB_USER"));
-        args.put("db.passwd", System. getenv("GH_DB_PASSWD"));
+        args.put("db.host", System.getenv("GH_DB_HOST"));
+        args.put("db.port", System.getenv("GH_DB_PORT"));
+        args.put("db.database", System.getenv("GH_DB_DATABASE"));
+        args.put("db.schema", System.getenv("GH_DB_SCHEMA"));
+        args.put("db.user", System.getenv("GH_DB_USER"));
+        args.put("db.passwd", System.getenv("GH_DB_PASSWD"));
         args.put("db.tags_to_copy", "name");
 
-        //TODO this should be fixed at some point, probably it would be nicer to have this in the args as well
-        args.put("datareader.file", System. getenv("GH_DB_TABLE"));
+        //TODO this should be fixed at some point, probably it would be better to have this in the args as well
+        args.put("datareader.file", System.getenv("GH_DB_TABLE"));
         args.put("graph.location", dir);
         args.put("graph.flag_encoders", "car");
         graphHopper.init(args);
         graphHopper.setCHEnabled(false);
         graphHopper.importOrLoad();
 
-        assertTrue("Not enough edges created", graphHopper.getGraphHopperStorage().getAllEdges().length()>NR_EXPECTED_EDGES);
+        assertTrue("Not enough edges created", graphHopper.getGraphHopperStorage().getAllEdges().length() > NR_EXPECTED_EDGES);
         stopWatch.stop();
-        System.out.println("Importing the database took: "+stopWatch.getSeconds());
+        System.out.println("Importing the database took: " + stopWatch.getSeconds());
     }
 
 }

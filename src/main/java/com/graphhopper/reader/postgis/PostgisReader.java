@@ -32,6 +32,8 @@ import org.geotools.feature.FeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -44,6 +46,8 @@ import java.util.Map;
  * @author Robin Boldt
  */
 public abstract class PostgisReader implements DataReader {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PostgisReader.class);
 
     private final GraphStorage graphStorage;
     private final NodeAccess nodeAccess;
@@ -80,6 +84,8 @@ public abstract class PostgisReader implements DataReader {
         if (dataStore == null)
             throw new IllegalArgumentException("DataStore cannot be null for getFeatureIterator");
 
+        LOGGER.info("Getting the feature iterator for " + tableName);
+
         try {
             FeatureSource<SimpleFeatureType, SimpleFeature> source =
                     dataStore.getFeatureSource(tableName);
@@ -96,6 +102,7 @@ public abstract class PostgisReader implements DataReader {
 
     protected DataStore openPostGisStore() {
         try {
+            LOGGER.info("Opening DB connection to " + this.postgisParams.get("dbtype") + " " + this.postgisParams.get("host") + ":" + this.postgisParams.get("port") + " to database " + this.postgisParams.get("database") + " schema " + this.postgisParams.get("schema"));
             DataStore ds = DataStoreFinder.getDataStore(this.postgisParams);
             if (ds == null)
                 throw new IllegalArgumentException("Error Connecting to Database ");
