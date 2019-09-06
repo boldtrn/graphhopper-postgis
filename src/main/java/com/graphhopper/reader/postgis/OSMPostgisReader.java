@@ -58,7 +58,7 @@ public class OSMPostgisReader extends PostgisReader {
     private static final int FIRST_NODE_ID = 1;
     private final String[] tagsToCopy;
     private File roadsFile;
-    private final GHObjectIntHashMap<Coordinate> coordState = new GHObjectIntHashMap<>(1000, 0.7f);
+    private GHObjectIntHashMap<Coordinate> coordState = new GHObjectIntHashMap<>(1000, 0.7f);
     private final DistanceCalc distCalc = DIST_EARTH;
     private final HashSet<EdgeAddedListener> edgeAddedListeners = new HashSet<>();
     private int nextNodeId = FIRST_NODE_ID;
@@ -215,6 +215,12 @@ public class OSMPostgisReader extends PostgisReader {
                 dataStore.dispose();
             }
         }
+    }
+
+    @Override
+    protected void finishReading() {
+        this.coordState.clear();
+        this.coordState = null;
     }
 
     protected double getWayLength(Coordinate start, List<Coordinate> pillars, Coordinate end) {

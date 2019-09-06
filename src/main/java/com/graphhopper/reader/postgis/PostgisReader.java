@@ -76,11 +76,17 @@ public abstract class PostgisReader implements DataReader {
         graphStorage.create(1000);
         processJunctions();
         processRoads();
+        finishReading();
     }
 
     abstract void processJunctions();
 
     abstract void processRoads();
+
+    /**
+     * This method will be called in the end to release the objects
+     */
+    protected abstract void finishReading();
 
     protected FeatureIterator<SimpleFeature> getFeatureIterator(
             DataStore dataStore, String tableName) {
