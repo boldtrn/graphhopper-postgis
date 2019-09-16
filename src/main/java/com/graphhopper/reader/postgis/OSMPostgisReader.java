@@ -62,6 +62,7 @@ public class OSMPostgisReader extends PostgisReader {
     private final DistanceCalc distCalc = DIST_EARTH;
     private final HashSet<EdgeAddedListener> edgeAddedListeners = new HashSet<>();
     private int nextNodeId = FIRST_NODE_ID;
+    protected long zeroCounter = 0;
 
     public OSMPostgisReader(GraphHopperStorage ghStorage, Map<String, String> postgisParams) {
         super(ghStorage, postgisParams);
@@ -221,6 +222,7 @@ public class OSMPostgisReader extends PostgisReader {
     protected void finishReading() {
         this.coordState.clear();
         this.coordState = null;
+        LOGGER.info("Finished reading. Zero Counter " + nf(zeroCounter) + " " + Helper.getMemInfo());
     }
 
     protected double getWayLength(Coordinate start, List<Coordinate> pillars, Coordinate end) {
@@ -232,6 +234,18 @@ public class OSMPostgisReader extends PostgisReader {
             previous = point;
         }
         distance += distCalc.calcDist(lat(previous), lng(previous), lat(end), lng(end));
+
+        if (distance < 0.0001) {
+            // As investigation shows often two paths should have crossed via one identical point
+            // but end up in two very close points.
+            zeroCounter++;
+            distance = 0.0001;
+        }
+
+        if (Double.isNaN(distance)) {
+            LOGGER.warn("Bug in OSM or GraphHopper. Illegal tower node distance " + distance + " reset to 1m, osm way " + distance);
+            distance = 1;
+        }
 
         return distance;
     }
