@@ -99,7 +99,8 @@ public abstract class PostgisReader implements DataReader {
         try {
             FeatureSource<SimpleFeatureType, SimpleFeature> source =
                     dataStore.getFeatureSource(tableName);
-            Filter filter = Filter.INCLUDE;
+
+            Filter filter = getFilter(source);
             FeatureCollection<SimpleFeatureType, SimpleFeature> collection = source.getFeatures(filter);
 
             FeatureIterator<SimpleFeature> features = collection.features();
@@ -108,6 +109,18 @@ public abstract class PostgisReader implements DataReader {
         } catch (Exception e) {
             throw Utils.asUnchecked(e);
         }
+    }
+
+    /**
+     * Filters can help a lot when you need to limit the results returned from PostGIS.
+     * A Filter can be used similar to the WHERE clause in regular SQL statements.
+     * It's easy to filter geometries that have a certain attributes, are in certain BBoxes, Polygons, etc.
+     * You can find a lot of sample filters here: https://github.com/geotools/geotools/blob/master/docs/src/main/java/org/geotools/main/FilterExamples.java
+     * <p>
+     * By default, all features are returned.
+     */
+    protected Filter getFilter(FeatureSource source) {
+        return Filter.INCLUDE;
     }
 
     protected DataStore openPostGisStore() {
