@@ -16,7 +16,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <gh.version>0.13.0-pre19</gh.version>
+        <gh.version>0.14.0-pre1</gh.version>
         <geotools.version>19.4</geotools.version>
     </properties>
 
