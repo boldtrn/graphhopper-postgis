@@ -63,6 +63,7 @@ public class OSMPostgisReader extends PostgisReader {
     private final HashSet<EdgeAddedListener> edgeAddedListeners = new HashSet<>();
     private int nextNodeId = FIRST_NODE_ID;
     protected long zeroCounter = 0;
+    private final IntsRef tempRelFlags;
 
     public OSMPostgisReader(GraphHopperStorage ghStorage, Map<String, String> postgisParams) {
         super(ghStorage, postgisParams);
@@ -72,6 +73,12 @@ public class OSMPostgisReader extends PostgisReader {
         } else {
             this.tagsToCopy = tmpTagsToCopy.split(",");
         }
+        tempRelFlags = encodingManager.createRelationFlags();
+        if (tempRelFlags.length != 2)
+            throw new IllegalArgumentException("Cannot use relation flags with != 2 integers");
+        // TODO relations are set empty by default, add relation handling
+        tempRelFlags.ints[0] = (int) 0L;
+        tempRelFlags.ints[1] = (int) 0L;
     }
 
     @Override
@@ -357,10 +364,7 @@ public class OSMPostgisReader extends PostgisReader {
             return;
         }
 
-        // TODO we're not using the relation flags
-        long relationFlags = 0;
-
-        IntsRef edgeFlags = encodingManager.handleWayTags(way, acceptWay, relationFlags);
+        IntsRef edgeFlags = encodingManager.handleWayTags(way, acceptWay, tempRelFlags);
         if (edgeFlags.isEmpty())
             return;
 
