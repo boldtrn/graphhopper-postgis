@@ -371,6 +371,7 @@ public class OSMPostgisReader extends PostgisReader {
         edge.setDistance(distance);
         edge.setFlags(edgeFlags);
         edge.setWayGeometry(pillarNodes);
+        encodingManager.applyWayTags(way, edge);
 
         if (edgeAddedListeners.size() > 0) {
             // check size first so we only allocate the iterator if we have
