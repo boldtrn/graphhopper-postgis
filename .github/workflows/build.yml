@@ -2,10 +2,9 @@ name: Java Test and Publish
 
 on: [push]
 
-environment: database
-
 jobs:
   build:
+    environment: database
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
