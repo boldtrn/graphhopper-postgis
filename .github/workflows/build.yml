@@ -21,6 +21,14 @@ jobs:
             ${{ runner.os }}-maven-
       - name: Run Maven Tests
         run: mvn test
+        env:
+          GH_DB_HOST: ${{ secrets.GH_DB_HOST }}
+          GH_DB_PORT: ${{ secrets.GH_DB_PORT }}
+          GH_DB_DATABASE: ${{ secrets.GH_DB_DATABASE }}
+          GH_DB_SCHEMA: ${{ secrets.GH_DB_SCHEMA }}
+          GH_DB_USER: ${{ secrets.GH_DB_USER }}
+          GH_DB_PASSWD: ${{ secrets.GH_DB_PASSWD }}
+          GH_DB_TABLE: ${{ secrets.GH_DB_TABLE }}
       - name: Build and publish package
         run: |
           mvn -B versions:set -DnewVersion=$GITHUB_SHA -DgenerateBackupPoms=false
