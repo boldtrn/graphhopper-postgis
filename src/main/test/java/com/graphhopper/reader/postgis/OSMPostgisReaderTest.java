@@ -17,21 +17,30 @@
  */
 package com.graphhopper.reader.postgis;
 
+import com.graphhopper.GHRequest;
+import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.util.CmdArgs;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.StopWatch;
+import com.graphhopper.util.shapes.GHPoint;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
  * To be able to use this test class, you need to define access to your postgis DB in the environment variables
  * in your ~/.profile ~/.bashrc or similar
+ * <p>
+ * The current test uses a shape file from Geofabrik, this one: http://download.geofabrik.de/europe/andorra-201215-free.shp.zip
+ * I uploaded the file "gis_osm_roads_free_1.shp" to https://qgiscloud.com/ using qgis.
+ * <p>
+ * If you use a different shape file, you might need to change the test values.
  *
  * @author Robin Boldt
  */
@@ -40,7 +49,7 @@ public class OSMPostgisReaderTest {
     private final String dir = "./target/tmp/test-db";
 
     // Note: Change the number of expected edges to your database
-    private final int NR_EXPECTED_EDGES = 16000;
+    private final int NR_EXPECTED_EDGES = 8538;
 
     @Before
     public void setUp() {
@@ -79,9 +88,20 @@ public class OSMPostgisReaderTest {
         graphHopper.setCHEnabled(false);
         graphHopper.importOrLoad();
 
-        assertTrue("Not enough edges created", graphHopper.getGraphHopperStorage().getAllEdges().length() > NR_EXPECTED_EDGES);
+        assertEquals("The number of expected edges does not match", graphHopper.getGraphHopperStorage().getAllEdges().length(), NR_EXPECTED_EDGES);
         stopWatch.stop();
         System.out.println("Importing the database took: " + stopWatch.getSeconds());
+
+        GHRequest request = new GHRequest();
+        request.addPoint(new GHPoint(42.476655,1.490536));
+        request.addPoint(new GHPoint(42.537271,1.589928));
+        GHResponse response = graphHopper.route(request);
+
+        assertTrue(13000 < response.getBest().getDistance());
+        assertTrue(14000 > response.getBest().getDistance());
+
+        assertTrue(800000 < response.getBest().getTime());
+        assertTrue(900000 > response.getBest().getTime());
     }
 
 }

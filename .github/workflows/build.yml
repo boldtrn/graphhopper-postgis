@@ -1,0 +1,28 @@
+name: Java Test and Publish
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.11
+      - name: Maven Cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Run Maven Tests
+        run: mvn test
+      - name: Build and publish package
+        run: |
+          mvn -B versions:set -DnewVersion=$GITHUB_SHA -DgenerateBackupPoms=false
+          mvn -B -DskipTests -Dskip.installnodenpm -Dskip.npm -Pskip-shaded-web-jar -Pskip-tools-jar source:jar deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
