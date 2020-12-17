@@ -20,7 +20,8 @@ package com.graphhopper.reader.postgis;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
-import com.graphhopper.util.CmdArgs;
+import com.graphhopper.GraphHopperConfig;
+import com.graphhopper.config.Profile;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.StopWatch;
 import com.graphhopper.util.shapes.GHPoint;
@@ -29,6 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -71,21 +73,24 @@ public class OSMPostgisReaderTest {
         StopWatch stopWatch = new StopWatch().start();
         GraphHopper graphHopper = new GraphHopperPostgis().forServer();
 
-        CmdArgs args = new CmdArgs();
-        args.put("db.host", System.getenv("GH_DB_HOST"));
-        args.put("db.port", System.getenv("GH_DB_PORT"));
-        args.put("db.database", System.getenv("GH_DB_DATABASE"));
-        args.put("db.schema", System.getenv("GH_DB_SCHEMA"));
-        args.put("db.user", System.getenv("GH_DB_USER"));
-        args.put("db.passwd", System.getenv("GH_DB_PASSWD"));
-        args.put("db.tags_to_copy", "name");
+        GraphHopperConfig graphHopperConfig = new GraphHopperConfig();
+        graphHopperConfig.putObject("db.host", System.getenv("GH_DB_HOST"));
+        graphHopperConfig.putObject("db.port", System.getenv("GH_DB_PORT"));
+        graphHopperConfig.putObject("db.database", System.getenv("GH_DB_DATABASE"));
+        graphHopperConfig.putObject("db.schema", System.getenv("GH_DB_SCHEMA"));
+        graphHopperConfig.putObject("db.user", System.getenv("GH_DB_USER"));
+        graphHopperConfig.putObject("db.passwd", System.getenv("GH_DB_PASSWD"));
+        graphHopperConfig.putObject("db.tags_to_copy", "name");
 
         //TODO this should be fixed at some point, probably it would be better to have this in the args as well
-        args.put("datareader.file", System.getenv("GH_DB_TABLE"));
-        args.put("graph.location", dir);
-        args.put("graph.flag_encoders", "car");
-        graphHopper.init(args);
-        graphHopper.setCHEnabled(false);
+        graphHopperConfig.putObject("datareader.file", System.getenv("GH_DB_TABLE"));
+        graphHopperConfig.putObject("graph.location", dir);
+        graphHopperConfig.putObject("graph.flag_encoders", "car");
+
+        graphHopperConfig.setProfiles(Collections.singletonList(new Profile("my_car").setVehicle("car").setWeighting("fastest")));
+
+        graphHopper.init(graphHopperConfig);
+        //graphHopper.setCHEnabled(false);
         graphHopper.importOrLoad();
 
         assertEquals("The number of expected edges does not match", graphHopper.getGraphHopperStorage().getAllEdges().length(), NR_EXPECTED_EDGES);
@@ -93,8 +98,9 @@ public class OSMPostgisReaderTest {
         System.out.println("Importing the database took: " + stopWatch.getSeconds());
 
         GHRequest request = new GHRequest();
-        request.addPoint(new GHPoint(42.476655,1.490536));
-        request.addPoint(new GHPoint(42.537271,1.589928));
+        request.addPoint(new GHPoint(42.476655, 1.490536));
+        request.addPoint(new GHPoint(42.537271, 1.589928));
+        request.setProfile("my_car");
         GHResponse response = graphHopper.route(request);
 
         assertTrue(13000 < response.getBest().getDistance());

@@ -39,7 +39,9 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.*;
 
-import static com.graphhopper.util.Helper.*;
+import static com.graphhopper.util.DistanceCalcEarth.DIST_EARTH;
+import static com.graphhopper.util.Helper.nf;
+import static com.graphhopper.util.Helper.toLowerCase;
 
 /**
  * Reads OSM data from Postgis and uses it in GraphHopper
@@ -277,13 +279,25 @@ public class OSMPostgisReader extends PostgisReader {
 
     @Override
     public DataReader setWayPointMaxDistance(double wayPointMaxDistance) {
-        // TODO Auto-generated method stub
+        // Currently not supported
+        return this;
+    }
+
+    @Override
+    public DataReader setWayPointElevationMaxDistance(double v) {
+        // Currently not supported
         return this;
     }
 
     @Override
     public DataReader setSmoothElevation(boolean smoothElevation) {
         // TODO implement elevation smoothing for shape files
+        return this;
+    }
+
+    @Override
+    public DataReader setLongEdgeSamplingDistance(double v) {
+        // Currently not supported
         return this;
     }
 
